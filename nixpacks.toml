@@ -8,3 +8,6 @@ cmds = ["npm install --prefix client --include=dev && npm run --prefix client bu
 
 [start]
 cmd = "node server/index.js"
+
+[variables]
+NODE_VERSION = "20"
