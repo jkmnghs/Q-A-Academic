@@ -4,11 +4,11 @@ let supabase;
 
 function initDatabase() {
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SERVICE_TOKEN;
 
   if (!url || !key) {
     throw new Error(
-      'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables are required.\n' +
+      'SUPABASE_URL and SUPABASE_SERVICE_TOKEN environment variables are required.\n' +
       'Copy server/.env.example to server/.env and fill in your Supabase credentials.'
     );
   }
