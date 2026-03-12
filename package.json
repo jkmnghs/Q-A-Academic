@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Live audience engagement app similar to Slido",
   "scripts": {
-    "install:all": "npm install --prefix client --include=dev && npm install --prefix server",
+    "install:all": "npm install --prefix client && npm install --prefix server",
     "build": "npm run --prefix client build",
     "start": "node server/index.js",
     "dev:server": "node server/node_modules/nodemon/bin/nodemon.js server/index.js",
