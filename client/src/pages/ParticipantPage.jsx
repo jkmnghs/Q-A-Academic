@@ -18,20 +18,49 @@ export default function ParticipantPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  // Read code from URL path (/participate/:code) OR query string (?code=XXX)
+  const queryCode = searchParams.get('code');
+  const initialCode = (urlCode || queryCode || '').toUpperCase();
+
   const [step, setStep] = useState('join'); // 'join' | 'participate'
   const [session, setSession] = useState(null);
   const [participantName, setParticipantName] = useState('');
-  const [form, setForm] = useState({ code: urlCode || '', name: '' });
+  const [form, setForm] = useState({ code: initialCode, name: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const participantId = getParticipantId();
 
-  // Auto-join if code is in the URL
+  // On mount: restore session from sessionStorage if participant already joined
   useEffect(() => {
-    if (urlCode) {
-      setForm(f => ({ ...f, code: urlCode }));
+    const saved = sessionStorage.getItem('participant_session');
+    if (saved) {
+      try {
+        const { code, name } = JSON.parse(saved);
+        setLoading(true);
+        axios.get(`/api/sessions/${code}`)
+          .then(({ data }) => {
+            setSession(data);
+            setParticipantName(name);
+            setStep('participate');
+            navigate(`/participate/${code}`, { replace: true });
+          })
+          .catch(() => {
+            // Session ended or expired — clear saved state
+            sessionStorage.removeItem('participant_session');
+          })
+          .finally(() => setLoading(false));
+      } catch {
+        sessionStorage.removeItem('participant_session');
+      }
     }
-  }, [urlCode]);
+  }, []);
+
+  // Keep code field in sync if URL changes (e.g. navigating to /join?code=XXX)
+  useEffect(() => {
+    if (initialCode) {
+      setForm(f => ({ ...f, code: initialCode }));
+    }
+  }, [initialCode]);
 
   async function handleJoin(e) {
     e.preventDefault();
@@ -43,6 +72,7 @@ export default function ParticipantPage() {
     setError('');
     try {
       const { data } = await axios.get(`/api/sessions/${code}`);
+      sessionStorage.setItem('participant_session', JSON.stringify({ code, name }));
       setSession(data);
       setParticipantName(name);
       setStep('participate');
@@ -65,6 +95,9 @@ export default function ParticipantPage() {
           session={session}
           participantName={participantName}
           participantId={participantId}
+          onSessionEnd={() => {
+            sessionStorage.removeItem('participant_session');
+          }}
         />
       </SocketProvider>
     );

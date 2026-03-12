@@ -4,7 +4,7 @@ import { useSocket } from '../../context/SocketContext.jsx';
 import QAParticipant from './QAParticipant.jsx';
 import PollParticipant from './PollParticipant.jsx';
 
-export default function ParticipantView({ session, participantName, participantId }) {
+export default function ParticipantView({ session, participantName, participantId, onSessionEnd }) {
   const socket = useSocket();
   const navigate = useNavigate();
 
@@ -124,7 +124,10 @@ export default function ParticipantView({ session, participantName, participantI
       persistPollResponse(pollId);
     });
 
-    socket.on('session-ended', () => setSessionEnded(true));
+    socket.on('session-ended', () => {
+      setSessionEnded(true);
+      if (onSessionEnd) onSessionEnd();
+    });
 
     if (socket.connected) doJoin();
 
