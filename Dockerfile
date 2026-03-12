@@ -2,24 +2,22 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy root package files
-COPY package*.json ./
-
-# Copy client and server package files
-COPY client/package*.json ./client/
+# Install server dependencies
 COPY server/package*.json ./server/
+RUN npm install --prefix server
 
-# Install all dependencies
-RUN npm run install:all
+# Install client dependencies (explicitly not production so vite is included)
+COPY client/package*.json ./client/
+RUN npm install --prefix client
 
-# Copy source code
+# Copy all source code
 COPY . .
 
 # Build the React client
-RUN npm run build
+RUN npm run --prefix client build
 
 # Expose port
 EXPOSE 3001
 
 # Start the server
-CMD ["npm", "start"]
+CMD ["node", "server/index.js"]
