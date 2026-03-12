@@ -81,8 +81,6 @@ export default function Home() {
             </svg>
             GitHub
           </a>
-          <span>·</span>
-          <span>Built with React &amp; Supabase</span>
         </div>
         <p>© {new Date().getFullYear()} LivePulse. All rights reserved.</p>
       </footer>
